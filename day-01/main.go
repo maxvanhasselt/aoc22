@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 )
 
 var inputfile = "./input"
 
 type CalorieCounter struct {
-	Max     int
 	current int
+
+	list []int
 }
 
 func (c *CalorieCounter) Add(calories string) {
@@ -21,10 +23,24 @@ func (c *CalorieCounter) Add(calories string) {
 }
 
 func (c *CalorieCounter) Next() {
-	if c.current >= c.Max {
-		c.Max = c.current
+	c.list = append(c.list, c.current)
+	sort.Ints(c.list)
+	if len(c.list) == 4 {
+		c.list = c.list[1:]
 	}
 	c.current = 0
+}
+
+func (c *CalorieCounter) Top() int {
+	total := 0
+	for _, i := range c.list {
+		total += i
+	}
+	return total
+}
+
+func (c *CalorieCounter) Max() int {
+	return c.list[2]
 }
 
 func main() {
@@ -48,5 +64,5 @@ func main() {
 	}
 	c.Next()
 
-	fmt.Println(c.Max)
+	fmt.Printf("Top 3 sum: %d. Max: %d\n", c.Top(), c.Max())
 }
