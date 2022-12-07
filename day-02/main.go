@@ -26,6 +26,12 @@ var shapeMap = map[byte]Shape{
 	'Z': Scissors,
 }
 
+var resultMap = map[byte]Result{
+	'X': Loss,
+	'Y': Draw,
+	'Z': Win,
+}
+
 type Result int
 
 const (
@@ -40,10 +46,24 @@ var matchupMap = map[Shape]map[Shape]Result{
 	Scissors: {Rock: Loss, Paper: Win, Scissors: Draw},
 }
 
+var matchFixMap = map[Shape]map[Result]Shape{
+	Rock:     {Draw: Rock, Win: Paper, Loss: Scissors},
+	Paper:    {Loss: Rock, Draw: Paper, Win: Scissors},
+	Scissors: {Win: Rock, Loss: Paper, Draw: Scissors},
+}
+
 func Score(game string) int {
 	opponent := shapeMap[game[0]]
 	me := shapeMap[game[2]]
+
 	return int(me) + int(matchupMap[me][opponent])
+}
+
+func FixMatchAndScore(game string) int {
+	opponent := shapeMap[game[0]]
+	result := resultMap[game[2]]
+
+	return int(result) + int(matchFixMap[opponent][result])
 }
 
 func main() {
@@ -55,9 +75,13 @@ func main() {
 	scanner := bufio.NewScanner(file)
 
 	score := 0
+	scorePart2 := 0
 	for scanner.Scan() {
-		score += Score(scanner.Text())
+		game := scanner.Text()
+		score += Score(game)
+		scorePart2 += FixMatchAndScore(game)
 	}
 
-	fmt.Println(score)
+	fmt.Println("part 1:", score)
+	fmt.Println("part 2:", scorePart2)
 }
